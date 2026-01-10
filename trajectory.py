@@ -54,9 +54,9 @@ class Trajectory:
 
 if __name__ == "__main__":
     traj = Trajectory()
-    traj.insert(5, 5, 3, 2, 3)
-    traj.insert(5, 5, 3, 2, 2)
-    traj.insert(5, 5, 3, 2, 1)
-    traj.insert(5, 5, 3, 2, 0)
+    # traj.insert(5, 5, 3, 2)
+    # traj.insert(5, 5, 3, 2)
+    # traj.insert(5, 5, 3, 2)
+    # traj.insert(5, 5, 3, 2)
 
-    print(traj.get_advantages())
+    # print(traj.get_advantages())

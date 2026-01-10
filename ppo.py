@@ -26,16 +26,15 @@ class PPO:
         log_prob = dist.log_prob(action)
         return action, log_prob
 
-    def step(self):
+    def step(self, step_no):
         decision_steps, terminal_steps = self.game_interface.get_state()
 
         if len(decision_steps) > 0:
             decision_obs_t = torch.as_tensor(decision_steps.obs, dtype=torch.float32)
             with torch.no_grad():
-                decision_state_vals = self.critic(decision_obs_t).squeeze()
+                decision_state_vals = self.critic(decision_obs_t).view(-1).cpu().numpy()
                 decision_actions, decision_log_probs = self.get_action(decision_obs_t)
 
-            decision_state_vals = decision_state_vals.cpu().numpy()
             decision_actions = decision_actions.cpu().numpy()
             decision_log_probs = decision_log_probs.cpu().numpy()
 
@@ -48,19 +47,18 @@ class PPO:
                     decision_log_probs[i],
                     decision_state_vals[i],
                     False,
-                    False,
+                    # if it's the last step in batch it's interrupted
+                    step_no == self.steps_per_batch - 1,
                 )
             jump_dummy = np.zeros_like(decision_actions)
             combined_actions = np.column_stack((decision_actions, jump_dummy))
             self.game_interface.set_actions(combined_actions)
 
         if len(terminal_steps) > 0:
-            terminal_obs_t = torch.as_tensor(terminal_steps.obs)
-            with torch.no_grad():
-                # used for interrupting
-                terminal_state_vals = self.critic(terminal_obs_t).squeeze()
+            terminal_obs_t = torch.as_tensor(terminal_steps.obs, dtype=torch.float32)
 
-            terminal_state_vals = terminal_state_vals.cpu().numpy()
+            with torch.no_grad():
+                terminal_state_vals = self.critic(terminal_obs_t).view(-1).cpu().numpy()
 
             for i, agent_id in enumerate(terminal_steps.agent_ids):
                 self.traj_buff.add(
@@ -76,11 +74,17 @@ class PPO:
         self.game_interface.step()
 
     def play_batch(self):
-        for _ in range(self.steps_per_batch):
-            self.step()
+        for i in range(self.steps_per_batch):
+            self.step(i)
+
+        obs, actions, rewards, log_probs, reward_to_gos, state_vals = (
+            self.traj_buff.get_flattened(self.critic)
+        )
+
+        print("Batch completed")
 
 
 if __name__ == "__main__":
-    ppo = PPO(8, 3, 500)
+    ppo = PPO(8, 3, 300)
     ppo.play_batch()
     ppo.game_interface.close()
