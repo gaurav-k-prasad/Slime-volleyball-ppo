@@ -4,7 +4,8 @@ import numpy as np
 class Trajectory:
     def __init__(self, gamma=0.99):
         self.obs = []
-        self.actions = []
+        self.move_actions = []
+        self.jump_actions = []
         self.rewards = []
         self.log_probs = []
         self.state_vals = []
@@ -14,9 +15,18 @@ class Trajectory:
 
         self.len = 0
 
-    def insert(self, obs, action, reward, log_prob, state_val):
+    def insert(
+        self,
+        obs,
+        move_action,
+        jump_action,
+        reward,
+        log_prob,
+        state_val,
+    ):
         self.obs.append(obs)
-        self.actions.append(action)
+        self.move_actions.append(move_action)
+        self.jump_actions.append(jump_action)
         self.rewards.append(reward)
         self.log_probs.append(log_prob)
         self.state_vals.append(state_val)
@@ -40,8 +50,7 @@ class Trajectory:
 
         return returns
 
-    def get_advantages(self):
-        rtgs = self.get_reward_to_go()
+    def get_advantages(self, rtgs):
         state_vals = np.array(self.state_vals, dtype=np.float32)
 
         advantages = rtgs - state_vals
