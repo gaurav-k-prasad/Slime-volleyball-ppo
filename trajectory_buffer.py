@@ -45,7 +45,7 @@ class TrajectoryBuffer:
 
         self.len += 1
 
-    def get_flattened(self):
+    def get_flattened(self, device):
         obs = []
         move_actions = []
         jump_actions = []
@@ -66,13 +66,13 @@ class TrajectoryBuffer:
                 advantages.extend(traj.get_advantages(rtg))
                 state_vals.extend(traj.state_vals)
 
-        obs = torch.as_tensor(np.array(obs), dtype=torch.float32)
-        move_actions = torch.as_tensor(move_actions, dtype=torch.float32)
-        jump_actions = torch.as_tensor(jump_actions, dtype=torch.float32)
-        log_probs = torch.as_tensor(log_probs, dtype=torch.float32)
-        state_vals = torch.as_tensor(state_vals, dtype=torch.float32)
-        rtgs = torch.as_tensor(rtgs, dtype=torch.float32)
-        advantages = torch.as_tensor(advantages, dtype=torch.float32)
+        obs = torch.as_tensor(np.array(obs), dtype=torch.float32).to(device)
+        move_actions = torch.as_tensor(move_actions, dtype=torch.float32).to(device)
+        jump_actions = torch.as_tensor(jump_actions, dtype=torch.float32).to(device)
+        log_probs = torch.as_tensor(log_probs, dtype=torch.float32).to(device)
+        state_vals = torch.as_tensor(state_vals, dtype=torch.float32).to(device)
+        rtgs = torch.as_tensor(rtgs, dtype=torch.float32).to(device)
+        advantages = torch.as_tensor(advantages, dtype=torch.float32).to(device)
 
         return (
             obs,

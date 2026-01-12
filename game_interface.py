@@ -12,7 +12,7 @@ class GameInterface:
     def __init__(self, traj_buff) -> None:
         self.traj_buff = traj_buff
         self.engine_config_channel = EngineConfigurationChannel()
-        self.engine_config_channel.set_configuration_parameters(time_scale=0.01)
+        self.engine_config_channel.set_configuration_parameters()
         self.env = UnityEnvironment(
             file_name=None, seed=1, side_channels=[self.engine_config_channel]
         )
