@@ -60,7 +60,7 @@ def evaluate(model_path, obs_dim, action_dim):
 
 if __name__ == "__main__":
     # Parameters must match your training setup
-    MODEL_FILE = "models/model_at_660000.pth"
+    MODEL_FILE = "final_model.pth"
     OBS_SIZE = 11
     ACT_SIZE = (3, 2)
 
